@@ -1,33 +1,61 @@
 module Types exposing (..)
 
--- Kissenanzahl darf nur 1, 2 oder 3 sein
+import SelectList exposing (SelectList)
+
+
+-- DATENMODELL
+
+
+type NonEmptyString
+    = NonEmptyString String
+
+
+type PositiveZahl
+    = PositiveZahl Int
 
 
 type Kissenanzahl
-    = Kissenanzahl Int
+    = EinKissen
+    | ZweiKissen
+    | DreiKissen
 
 
-type Karte
+type Kartentyp
     = Schnarchkarte
     | Ruhekissenkarte Kissenanzahl
     | Störkarte
     | Gewitterkarte
 
 
+type Kartennummer
+    = Kartennummer Int
 
--- Die Liste in Hand ist genau 3 oder 4 Karten lang
+
+type alias Karte =
+    { typ : Kartentyp
+    , nummer : Kartennummer
+    }
+
+
+type DreiKarten
+    = DreiKarten (List Karte)
+
+
+type VierKarten
+    = VierKarten (List Karte)
 
 
 type Hand
-    = Hand (List Karte)
+    = Drei DreiKarten (List Karte)
+    | Vier VierKarten (List Karte)
 
 
 
--- Darf nicht leer sein
+-- Nicht-leer und eindeutig
 
 
 type Spielername
-    = Spielername String
+    = Spielername NonEmptyString
 
 
 
@@ -35,7 +63,7 @@ type Spielername
 
 
 type AnzahlKissen
-    = AnzahlKissen Int
+    = AnzahlKissen PositiveZahl
 
 
 type alias Ablegestapel =
@@ -50,4 +78,24 @@ type alias Spieler =
     { name : Spielername
     , hand : Hand
     , anzahlKissen : AnzahlKissen
+    , stapel : List Karte
     }
+
+
+type alias Spiel =
+    { gewinner : Maybe Spieler
+    , spieler : SelectList Spieler
+    , ziehstapel : Ziehstapel
+    , ablegestapel : Ablegestapel
+    }
+
+
+
+-- FUNKTIONEN
+
+
+nimmKarteAufHand : DreiKarten -> Karte -> VierKarten
+nimmKarteAufHand (DreiKarten vorherigeKarten) neu =
+    neu
+        :: vorherigeKarten
+        |> VierKarten
