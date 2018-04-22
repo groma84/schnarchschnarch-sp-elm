@@ -23,7 +23,7 @@ type Kissenanzahl
 type Kartentyp
     = Schnarchkarte
     | Ruhekissenkarte Kissenanzahl
-    | Störkarte
+    | Stoerkarte
     | Gewitterkarte
 
 
@@ -78,7 +78,8 @@ type alias Spieler =
     { name : Spielername
     , hand : Hand
     , anzahlKissen : AnzahlKissen
-    , stapel : List Karte
+    , obersteKarte : Karte
+    , restlicherStapel : List Karte
     }
 
 
@@ -90,12 +91,60 @@ type alias Spiel =
     }
 
 
+type alias AusfuehrenderSpieler =
+    Spieler
+
+
+type alias ZielSpieler =
+    Spieler
+
+
+type alias SpielerNachZug =
+    ( AusfuehrenderSpieler, ZielSpieler )
+
+
 
 -- FUNKTIONEN
 
 
 nimmKarteAufHand : DreiKarten -> Karte -> VierKarten
-nimmKarteAufHand (DreiKarten vorherigeKarten) neu =
-    neu
+nimmKarteAufHand (DreiKarten vorherigeKarten) neueKarte =
+    neueKarte
         :: vorherigeKarten
         |> VierKarten
+
+
+legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablegestapel )
+
+
+zieheKarte : Ziehstapel -> ( Karte, Ziehstapel )
+
+
+spielStarten : Spielername -> Spiel
+
+
+gegnerStoeren : AusfuehrenderSpieler -> ( Kartennummer, Stoerkarte ) -> ZielSpieler -> SpielerNachZug
+
+
+einschlafen : AusfuehrenderSpieler -> ( Kartennummer, Schnarchkarte ) -> AusfuehrenderSpieler
+
+
+kissenSammeln : AusfuehrenderSpieler -> ( Kartennummer, Ruhekissenkarte ) -> AusfuehrenderSpieler
+
+
+gewittern : AusfuehrenderSpieler -> ( Kartennummer, Gewitterkarte ) -> ZielSpieler -> SpielerNachZug
+
+
+kannKarteSpielen : Kartentyp -> Spieler -> List Spieler -> Bool
+
+
+findeLinkenSpieler : AusfuehrenderSpieler -> List Spieler -> Spieler
+
+
+hatSpielerGewonnen : AnzahlKissen -> Bool
+
+
+mischeStapel : List Karte -> List Karte
+
+
+sammleKartenAusSpielerstapeln : List (List Karte) -> List Karte
