@@ -27,10 +27,6 @@ type Kartentyp
     | Gewitterkarte
 
 
-type Kartennummer
-    = Kartennummer Int
-
-
 type alias Karte =
     { typ : Kartentyp
     , nummer : Kartennummer
@@ -46,12 +42,12 @@ type VierKarten
 
 
 type Hand
-    = Drei DreiKarten (List Karte)
-    | Vier VierKarten (List Karte)
+    = Drei DreiKarten
+    | Vier VierKarten
 
 
 
--- Nicht-leer und eindeutig
+-- Nicht-leer
 
 
 type Spielername
@@ -74,11 +70,15 @@ type alias Ziehstapel =
     List Karte
 
 
+type alias Kartennummer =
+    Int
+
+
 type alias Spieler =
     { name : Spielername
     , hand : Hand
     , anzahlKissen : AnzahlKissen
-    , obersteKarte : Karte
+    , obersteKarte : Maybe Karte
     , restlicherStapel : List Karte
     }
 
@@ -101,50 +101,3 @@ type alias ZielSpieler =
 
 type alias SpielerNachZug =
     ( AusfuehrenderSpieler, ZielSpieler )
-
-
-
--- FUNKTIONEN
-
-
-nimmKarteAufHand : DreiKarten -> Karte -> VierKarten
-nimmKarteAufHand (DreiKarten vorherigeKarten) neueKarte =
-    neueKarte
-        :: vorherigeKarten
-        |> VierKarten
-
-
-legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablegestapel )
-
-
-zieheKarte : Ziehstapel -> ( Karte, Ziehstapel )
-
-
-spielStarten : Spielername -> Spiel
-
-
-gegnerStoeren : AusfuehrenderSpieler -> ( Kartennummer, Stoerkarte ) -> ZielSpieler -> SpielerNachZug
-
-
-einschlafen : AusfuehrenderSpieler -> ( Kartennummer, Schnarchkarte ) -> AusfuehrenderSpieler
-
-
-kissenSammeln : AusfuehrenderSpieler -> ( Kartennummer, Ruhekissenkarte ) -> AusfuehrenderSpieler
-
-
-gewittern : AusfuehrenderSpieler -> ( Kartennummer, Gewitterkarte ) -> ZielSpieler -> SpielerNachZug
-
-
-kannKarteSpielen : Kartentyp -> Spieler -> List Spieler -> Bool
-
-
-findeLinkenSpieler : AusfuehrenderSpieler -> List Spieler -> Spieler
-
-
-hatSpielerGewonnen : AnzahlKissen -> Bool
-
-
-mischeStapel : List Karte -> List Karte
-
-
-sammleKartenAusSpielerstapeln : List (List Karte) -> List Karte

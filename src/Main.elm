@@ -1,6 +1,10 @@
 module Main exposing (..)
 
 import Html exposing (Html, div)
+import Msgs exposing (..)
+import Types exposing (..)
+import Funktionen exposing (..)
+import AlleKarten exposing (alleKarten)
 
 
 ---- MODEL ----
@@ -17,10 +21,6 @@ init =
 
 
 ---- UPDATE ----
-
-
-type Msg
-    = NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
