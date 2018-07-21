@@ -42,8 +42,8 @@ type VierKarten
 
 
 type Hand
-    = Drei DreiKarten
-    | Vier VierKarten
+    = DreiAufDerHand DreiKarten
+    | VierAufDerHand VierKarten
 
 
 

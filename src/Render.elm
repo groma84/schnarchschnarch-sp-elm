@@ -46,11 +46,11 @@ eigenerSpieler spieler =
 hand : Hand -> Html.Html msg
 hand hand =
     case hand of
-        Drei (DreiKarten karten) ->
+        DreiAufDerHand (DreiKarten karten) ->
             div [ style [ ( "display", "flex" ) ] ]
                 (List.map karte karten)
 
-        Vier (VierKarten karten) ->
+        VierAufDerHand (VierKarten karten) ->
             div [ style [ ( "display", "flex" ) ] ]
                 (List.map karte karten)
 

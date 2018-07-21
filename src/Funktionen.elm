@@ -1,7 +1,6 @@
-module Funktionen exposing (spielStarten, createRandomValues)
+module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugVorbereiten)
 
 import Random
-import SelectList exposing (SelectList)
 import Types exposing (..)
 import Msgs exposing (..)
 
@@ -11,7 +10,7 @@ spielStarten spielername karten mixNumbers =
     let
         createSpieler name handkarten =
             { name = name
-            , hand = handkarten |> DreiKarten |> Drei
+            , hand = handkarten |> DreiKarten |> DreiAufDerHand
             , anzahlKissen = 0 |> PositiveZahl |> AnzahlKissen
             , obersteKarte = Nothing
             , restlicherStapel = []
@@ -43,6 +42,42 @@ spielStarten spielername karten mixNumbers =
         }
 
 
+naechstenSpielzugVorbereiten : Spiel -> Spiel
+naechstenSpielzugVorbereiten spiel =
+    let
+        ( spielbareHand, neuerZiehstapel ) =
+            zieheKarte spiel.ziehstapel spiel.spieler1.hand
+
+        alterSpieler1 =
+            spiel.spieler1
+
+        neuerSpieler1 =
+            { alterSpieler1 | hand = spielbareHand }
+    in
+        { spiel | spieler1 = neuerSpieler1, ziehstapel = neuerZiehstapel }
+
+
+zieheKarte : Ziehstapel -> Hand -> ( Hand, Ziehstapel )
+zieheKarte ziehstapel hand =
+    let
+        ( spielbareHand, neuerZiehstapel ) =
+            case hand of
+                DreiAufDerHand alteDreiKarten ->
+                    let
+                        ( neueKarte, neuerZiehstapel ) =
+                            zieheKarteVomZiehStapel ziehstapel
+
+                        neueHand =
+                            nimmKarteAufHand alteDreiKarten neueKarte
+                    in
+                        ( neueHand |> VierAufDerHand, neuerZiehstapel )
+
+                VierAufDerHand _ ->
+                    ( hand, ziehstapel )
+    in
+        ( spielbareHand, neuerZiehstapel )
+
+
 nimmKarteAufHand : DreiKarten -> Karte -> VierKarten
 nimmKarteAufHand (DreiKarten vorherigeKarten) neueKarte =
     neueKarte
@@ -59,7 +94,29 @@ mischeStapel stapel mixNumbers =
 
 
 --legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablegestapel )
---zieheKarte : Ziehstapel -> ( Karte, Ziehstapel )
+
+
+zieheKarteVomZiehStapel : Ziehstapel -> ( Karte, Ziehstapel )
+zieheKarteVomZiehStapel ziehstapel =
+    let
+        karte =
+            List.head ziehstapel
+
+        restlicherStapel =
+            List.tail ziehstapel
+
+        ( gezogeneKarte, neuerZiehstapel ) =
+            case ( karte, restlicherStapel ) of
+                ( Just k, Just s ) ->
+                    ( k, s )
+
+                _ ->
+                    Debug.crash ("impossible state in zieheKarteVomZiehStapel")
+    in
+        ( gezogeneKarte, neuerZiehstapel )
+
+
+
 --gegnerStoeren : AusfuehrenderSpieler -> ( Kartennummer, Stoerkarte ) -> ZielSpieler -> SpielerNachZug
 --einschlafen : AusfuehrenderSpieler -> ( Kartennummer, Schnarchkarte ) -> AusfuehrenderSpieler
 --kissenSammeln : AusfuehrenderSpieler -> ( Kartennummer, Ruhekissenkarte ) -> AusfuehrenderSpieler

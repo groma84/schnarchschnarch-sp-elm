@@ -5,3 +5,4 @@ type Msg
     = NoOp
     | NeuesSpielStarten
     | MischeKartenAmAnfang (List Int)
+    | NaechstenSpielzugVorbereiten

@@ -49,7 +49,27 @@ update msg model =
                 gestartetesSpiel =
                     spielStarten spielername alleKarten mixNumbers
             in
-                ( { model | status = SpielImGange gestartetesSpiel }, Cmd.none )
+                { model | status = SpielImGange gestartetesSpiel }
+                    |> update NaechstenSpielzugVorbereiten
+
+        NaechstenSpielzugVorbereiten ->
+            let
+                newModel =
+                    case model.status of
+                        Startmenue ->
+                            model
+
+                        SpielImGange spiel ->
+                            let
+                                spielBereitFuerInput =
+                                    naechstenSpielzugVorbereiten spiel
+                            in
+                                { model | status = SpielImGange spielBereitFuerInput }
+
+                        Beendet ->
+                            model
+            in
+                ( newModel, Cmd.none )
 
 
 
