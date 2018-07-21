@@ -1,4 +1,4 @@
-module Funktionen exposing (spielStarten)
+module Funktionen exposing (spielStarten, createRandomValues)
 
 import Random
 import SelectList exposing (SelectList)
@@ -33,7 +33,11 @@ spielStarten spielername karten mixNumbers =
             createSpieler ("Computer3" |> NonEmptyString |> Spielername) (gemischteKarten |> List.drop 9 |> List.take 3)
     in
         { gewinner = Nothing
-        , spieler = SelectList.fromLists [] spieler [ computer1, computer2, computer3 ]
+        , spieler1 = spieler
+        , spieler2 = computer1
+        , spieler3 = computer2
+        , spieler4 = computer3
+        , aktiverSpieler = SpielerEins
         , ziehstapel = List.drop 12 gemischteKarten
         , ablegestapel = []
         }
@@ -66,7 +70,7 @@ mischeStapel stapel mixNumbers =
 --sammleKartenAusSpielerstapeln : List (List Karte) -> List Karte
 
 
-createRandomValues : Int -> (List Int -> Msg) -> Cmd Msg
-createRandomValues anzahl msg =
+createRandomValues : (List Int -> Msg) -> Int -> Cmd Msg
+createRandomValues msg anzahl =
     Random.list anzahl (Random.int 1 anzahl)
         |> Random.generate msg

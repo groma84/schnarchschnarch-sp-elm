@@ -83,9 +83,20 @@ type alias Spieler =
     }
 
 
+type SpielerNummer
+    = SpielerEins
+    | SpielerZwei
+    | SpielerDrei
+    | SpielerVier
+
+
 type alias Spiel =
     { gewinner : Maybe Spieler
-    , spieler : SelectList Spieler
+    , spieler1 : Spieler
+    , spieler2 : Spieler
+    , spieler3 : Spieler
+    , spieler4 : Spieler
+    , aktiverSpieler : SpielerNummer
     , ziehstapel : Ziehstapel
     , ablegestapel : Ablegestapel
     }
@@ -101,3 +112,9 @@ type alias ZielSpieler =
 
 type alias SpielerNachZug =
     ( AusfuehrenderSpieler, ZielSpieler )
+
+
+type Status
+    = Startmenue
+    | SpielImGange Spiel
+    | Beendet
