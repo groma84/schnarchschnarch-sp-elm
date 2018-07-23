@@ -118,3 +118,10 @@ type Status
     = Startmenue
     | SpielImGange Spiel
     | Beendet
+
+
+type KartenInteraktion
+    = Handkarte
+    | Ablagestapel
+    | EigenerKartenstapel
+    | FremderKartenstapel ZielSpieler

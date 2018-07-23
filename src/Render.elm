@@ -2,10 +2,12 @@ module Render exposing (spielbrett)
 
 import Html exposing (div, text, span)
 import Html.Attributes exposing (style, id)
+import Html.Events exposing (onClick)
 import Types exposing (..)
+import Msgs exposing (..)
 
 
-spielbrett : Spiel -> Html.Html msg
+spielbrett : Spiel -> Html.Html Msg
 spielbrett spiel =
     div
         [ style
@@ -24,45 +26,44 @@ spielbrett spiel =
         ]
 
 
-andererSpieler : Spieler -> Html.Html msg
+andererSpieler : Spieler -> Html.Html Msg
 andererSpieler spieler =
     div [ style [ ( "display", "flex" ) ] ]
         [ spieler.name |> spielernameZuString |> text
         , kissenContainer spieler.anzahlKissen
-        , letzteGespielteKarteOderPlatzhalter spieler.obersteKarte
+        , letzteGespielteKarteOderPlatzhalter (FremderKartenstapel spieler) spieler.obersteKarte
         ]
 
 
-eigenerSpieler : Spieler -> Html.Html msg
+eigenerSpieler : Spieler -> Html.Html Msg
 eigenerSpieler spieler =
     div [ style [ ( "display", "flex" ), ( "font-weight", "bold" ) ] ]
         [ spieler.name |> spielernameZuString |> text
         , kissenContainer spieler.anzahlKissen
-        , letzteGespielteKarteOderPlatzhalter spieler.obersteKarte
+        , letzteGespielteKarteOderPlatzhalter EigenerKartenstapel spieler.obersteKarte
         , hand spieler.hand
         ]
 
 
-hand : Hand -> Html.Html msg
+hand : Hand -> Html.Html Msg
 hand hand =
-    case hand of
-        DreiAufDerHand (DreiKarten karten) ->
-            div [ style [ ( "display", "flex" ) ] ]
-                (List.map karte karten)
+    let
+        kartenContainer karte =
+            kartenInteraktionContainer Handkarte (Just karte)
+    in
+        case hand of
+            DreiAufDerHand (DreiKarten karten) ->
+                div [ style [ ( "display", "flex" ) ] ]
+                    (List.map kartenContainer karten)
 
-        VierAufDerHand (VierKarten karten) ->
-            div [ style [ ( "display", "flex" ) ] ]
-                (List.map karte karten)
+            VierAufDerHand (VierKarten karten) ->
+                div [ style [ ( "display", "flex" ) ] ]
+                    (List.map kartenContainer karten)
 
 
-letzteGespielteKarteOderPlatzhalter : Maybe Karte -> Html.Html msg
-letzteGespielteKarteOderPlatzhalter obersteKarte =
-    case obersteKarte of
-        Just k ->
-            karte k
-
-        Nothing ->
-            kartenPlatzhalter
+letzteGespielteKarteOderPlatzhalter : KartenInteraktion -> Maybe Karte -> Html.Html Msg
+letzteGespielteKarteOderPlatzhalter kartenInteraktion obersteKarte =
+    kartenInteraktionContainer kartenInteraktion obersteKarte
 
 
 spielernameZuString : Spielername -> String
@@ -116,8 +117,8 @@ kissenContainer (Types.AnzahlKissen (Types.PositiveZahl anzahl)) =
         (List.repeat anzahl kissen)
 
 
-karte : Karte -> Html.Html msg
-karte karte =
+kartenElement : Karte -> Html.Html msg
+kartenElement karte =
     let
         kartentext =
             case karte.typ of
@@ -173,6 +174,39 @@ kartenPlatzhalter =
                 ]
             ]
             [ rotatedText ]
+
+
+kartenInteraktionContainer : KartenInteraktion -> Maybe Karte -> Html.Html Msg
+kartenInteraktionContainer kartenInteraktion karte =
+    let
+        kartenEle =
+            case karte of
+                Just k ->
+                    kartenElement k
+
+                Nothing ->
+                    kartenPlatzhalter
+
+        kartenMsg =
+            case karte of
+                Just k ->
+                    case kartenInteraktion of
+                        Handkarte ->
+                            HandkarteGeklickt k
+
+                        Ablagestapel ->
+                            AblagestapelGeklickt
+
+                        EigenerKartenstapel ->
+                            EigenerKartenstapelGeklickt
+
+                        FremderKartenstapel zielSpieler ->
+                            FremderKartenstapelGeklickt zielSpieler
+
+                Nothing ->
+                    NoOp
+    in
+        div [ onClick kartenMsg ] [ kartenEle ]
 
 
 be2px : Int -> String

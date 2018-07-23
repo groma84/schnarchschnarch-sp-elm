@@ -71,6 +71,22 @@ update msg model =
             in
                 ( newModel, Cmd.none )
 
+        HandkarteGeklickt karte ->
+            -- TODO
+            ( model, Cmd.none )
+
+        AblagestapelGeklickt ->
+            -- TODO
+            ( model, Cmd.none )
+
+        EigenerKartenstapelGeklickt ->
+            -- TODO
+            ( model, Cmd.none )
+
+        FremderKartenstapelGeklickt zielSpieler ->
+            -- TODO
+            ( model, Cmd.none )
+
 
 
 ---- VIEW ----
