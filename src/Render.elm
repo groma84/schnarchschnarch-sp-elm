@@ -19,7 +19,8 @@ spielbrett spiel =
             , ( "margin", "auto" )
             ]
         ]
-        [ andererSpieler spiel.spieler4
+        [ kartenInteraktionContainer Ablagestapel Nothing
+        , andererSpieler spiel.spieler4
         , andererSpieler spiel.spieler3
         , andererSpieler spiel.spieler2
         , eigenerSpieler spiel.spieler1

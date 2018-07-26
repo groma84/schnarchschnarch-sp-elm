@@ -125,3 +125,8 @@ type KartenInteraktion
     | Ablagestapel
     | EigenerKartenstapel
     | FremderKartenstapel ZielSpieler
+
+
+type Cursor
+    = Leer
+    | KarteAktiv Karte

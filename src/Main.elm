@@ -14,12 +14,13 @@ import Render exposing (spielbrett)
 
 type alias Model =
     { status : Status
+    , cursor : Cursor
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { status = Startmenue }
+    ( { status = Startmenue, cursor = Leer }
     , Cmd.none
     )
 
@@ -72,12 +73,23 @@ update msg model =
                 ( newModel, Cmd.none )
 
         HandkarteGeklickt karte ->
-            -- TODO
-            ( model, Cmd.none )
+            ( { model | cursor = KarteAktiv karte }, Cmd.none )
 
         AblagestapelGeklickt ->
-            -- TODO
-            ( model, Cmd.none )
+            let
+                newModel =
+                    case model.cursor of
+                        Leer ->
+                            model
+
+                        KarteAktiv karte ->
+                            let
+                                ( neueHand, neuerAblagestapel ) =
+                                    Funktionen.legeKarteAb model.spiel.spieler.hand karte model.spiel.ablagestapel
+                            in
+                                { model |  }
+            in
+                ( newModel, Cmd.none )
 
         EigenerKartenstapelGeklickt ->
             -- TODO

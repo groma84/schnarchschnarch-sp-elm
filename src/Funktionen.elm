@@ -1,4 +1,4 @@
-module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugVorbereiten)
+module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugVorbereiten, legeKarteAb)
 
 import Random
 import Types exposing (..)
@@ -92,8 +92,7 @@ mischeStapel stapel mixNumbers =
         |> List.map Tuple.first
 
 
-
---legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablegestapel )
+legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablegestapel )
 
 
 zieheKarteVomZiehStapel : Ziehstapel -> ( Karte, Ziehstapel )
