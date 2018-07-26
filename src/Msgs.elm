@@ -8,7 +8,7 @@ type Msg
     | NeuesSpielStarten
     | MischeKartenAmAnfang (List Int)
     | NaechstenSpielzugVorbereiten
-    | HandkarteGeklickt Karte
+    | HandkarteGeklickt (Maybe Karte)
     | AblagestapelGeklickt
     | EigenerKartenstapelGeklickt
     | FremderKartenstapelGeklickt ZielSpieler

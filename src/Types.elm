@@ -62,7 +62,7 @@ type AnzahlKissen
     = AnzahlKissen PositiveZahl
 
 
-type alias Ablegestapel =
+type alias Ablagestapel =
     List Karte
 
 
@@ -96,9 +96,8 @@ type alias Spiel =
     , spieler2 : Spieler
     , spieler3 : Spieler
     , spieler4 : Spieler
-    , aktiverSpieler : SpielerNummer
     , ziehstapel : Ziehstapel
-    , ablegestapel : Ablegestapel
+    , ablagestapel : Ablagestapel
     }
 
 
@@ -122,7 +121,7 @@ type Status
 
 type KartenInteraktion
     = Handkarte
-    | Ablagestapel
+    | AufAblagestapel
     | EigenerKartenstapel
     | FremderKartenstapel ZielSpieler
 

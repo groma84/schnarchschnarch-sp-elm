@@ -31,73 +31,112 @@ init =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        NoOp ->
+    let
+        todo =
             ( model, Cmd.none )
+    in
+        case msg of
+            NoOp ->
+                ( model, Cmd.none )
 
-        NeuesSpielStarten ->
-            let
-                generateMixNumbersCmd =
-                    List.length alleKarten |> createRandomValues MischeKartenAmAnfang
-            in
-                ( model, generateMixNumbersCmd )
+            NeuesSpielStarten ->
+                let
+                    generateMixNumbersCmd =
+                        List.length alleKarten |> createRandomValues MischeKartenAmAnfang
+                in
+                    ( model, generateMixNumbersCmd )
 
-        MischeKartenAmAnfang mixNumbers ->
-            let
-                spielername =
-                    "Spieler" |> NonEmptyString |> Spielername
+            MischeKartenAmAnfang mixNumbers ->
+                let
+                    spielername =
+                        "Spieler" |> NonEmptyString |> Spielername
 
-                gestartetesSpiel =
-                    spielStarten spielername alleKarten mixNumbers
-            in
-                { model | status = SpielImGange gestartetesSpiel }
-                    |> update NaechstenSpielzugVorbereiten
+                    gestartetesSpiel =
+                        spielStarten spielername alleKarten mixNumbers
+                in
+                    { model | status = SpielImGange gestartetesSpiel }
+                        |> update NaechstenSpielzugVorbereiten
 
-        NaechstenSpielzugVorbereiten ->
-            let
-                newModel =
-                    case model.status of
-                        Startmenue ->
-                            model
+            NaechstenSpielzugVorbereiten ->
+                let
+                    newModel =
+                        case model.status of
+                            Startmenue ->
+                                model
 
-                        SpielImGange spiel ->
-                            let
-                                spielBereitFuerInput =
-                                    naechstenSpielzugVorbereiten spiel
-                            in
-                                { model | status = SpielImGange spielBereitFuerInput }
+                            SpielImGange spiel ->
+                                let
+                                    spielBereitFuerInput =
+                                        naechstenSpielzugVorbereiten spiel
+                                in
+                                    { model | status = SpielImGange spielBereitFuerInput }
 
-                        Beendet ->
-                            model
-            in
-                ( newModel, Cmd.none )
+                            Beendet ->
+                                model
+                in
+                    ( newModel, Cmd.none )
 
-        HandkarteGeklickt karte ->
-            ( { model | cursor = KarteAktiv karte }, Cmd.none )
+            HandkarteGeklickt karte ->
+                case karte of
+                    Nothing ->
+                        ( model, Cmd.none )
 
-        AblagestapelGeklickt ->
-            let
-                newModel =
-                    case model.cursor of
-                        Leer ->
-                            model
+                    Just k ->
+                        ( { model | cursor = KarteAktiv k }, Cmd.none )
 
-                        KarteAktiv karte ->
-                            let
-                                ( neueHand, neuerAblagestapel ) =
-                                    Funktionen.legeKarteAb model.spiel.spieler.hand karte model.spiel.ablagestapel
-                            in
-                                { model |  }
-            in
-                ( newModel, Cmd.none )
+            AblagestapelGeklickt ->
+                let
+                    geaendertesModel =
+                        case model.cursor of
+                            Leer ->
+                                model
 
-        EigenerKartenstapelGeklickt ->
-            -- TODO
-            ( model, Cmd.none )
+                            KarteAktiv karte ->
+                                case model.status of
+                                    Startmenue ->
+                                        model
 
-        FremderKartenstapelGeklickt zielSpieler ->
-            -- TODO
-            ( model, Cmd.none )
+                                    Beendet ->
+                                        model
+
+                                    SpielImGange spiel ->
+                                        let
+                                            spieler1 =
+                                                spiel.spieler1
+
+                                            ( neueHand, neuerAblagestapel ) =
+                                                case spieler1.hand of
+                                                    VierAufDerHand vierKarten ->
+                                                        let
+                                                            ( dreiKarten, ablagestapel ) =
+                                                                Funktionen.legeKarteAb vierKarten karte spiel.ablagestapel
+                                                        in
+                                                            ( DreiAufDerHand dreiKarten, ablagestapel )
+
+                                                    DreiAufDerHand _ ->
+                                                        ( spieler1.hand, spiel.ablagestapel )
+
+                                            updatedSpieler1 =
+                                                { spieler1 | hand = neueHand }
+
+                                            updatedSpiel =
+                                                { spiel | ablagestapel = neuerAblagestapel, spieler1 = updatedSpieler1 }
+
+                                            computerZuegeGespielt =
+                                                macheComputerZug updatedSpiel
+
+                                            spielerHatNeueKarteGezogen =
+                                                naechstenSpielzugVorbereiten computerZuegeGespielt
+                                        in
+                                            { model | status = SpielImGange spielerHatNeueKarteGezogen, cursor = Leer }
+                in
+                    ( geaendertesModel, Cmd.none )
+
+            EigenerKartenstapelGeklickt ->
+                todo
+
+            FremderKartenstapelGeklickt zielSpieler ->
+                todo
 
 
 

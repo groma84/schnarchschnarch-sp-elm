@@ -19,7 +19,7 @@ spielbrett spiel =
             , ( "margin", "auto" )
             ]
         ]
-        [ kartenInteraktionContainer Ablagestapel Nothing
+        [ kartenInteraktionContainer AufAblagestapel Nothing
         , andererSpieler spiel.spieler4
         , andererSpieler spiel.spieler3
         , andererSpieler spiel.spieler2
@@ -189,23 +189,18 @@ kartenInteraktionContainer kartenInteraktion karte =
                     kartenPlatzhalter
 
         kartenMsg =
-            case karte of
-                Just k ->
-                    case kartenInteraktion of
-                        Handkarte ->
-                            HandkarteGeklickt k
+            case kartenInteraktion of
+                Handkarte ->
+                    HandkarteGeklickt karte
 
-                        Ablagestapel ->
-                            AblagestapelGeklickt
+                AufAblagestapel ->
+                    AblagestapelGeklickt
 
-                        EigenerKartenstapel ->
-                            EigenerKartenstapelGeklickt
+                EigenerKartenstapel ->
+                    EigenerKartenstapelGeklickt
 
-                        FremderKartenstapel zielSpieler ->
-                            FremderKartenstapelGeklickt zielSpieler
-
-                Nothing ->
-                    NoOp
+                FremderKartenstapel zielSpieler ->
+                    FremderKartenstapelGeklickt zielSpieler
     in
         div [ onClick kartenMsg ] [ kartenEle ]
 

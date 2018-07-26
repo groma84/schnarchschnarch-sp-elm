@@ -1,4 +1,4 @@
-module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugVorbereiten, legeKarteAb)
+module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugVorbereiten, legeKarteAb, macheComputerZug)
 
 import Random
 import Types exposing (..)
@@ -36,9 +36,8 @@ spielStarten spielername karten mixNumbers =
         , spieler2 = computer1
         , spieler3 = computer2
         , spieler4 = computer3
-        , aktiverSpieler = SpielerEins
         , ziehstapel = List.drop 12 gemischteKarten
-        , ablegestapel = []
+        , ablagestapel = []
         }
 
 
@@ -92,7 +91,16 @@ mischeStapel stapel mixNumbers =
         |> List.map Tuple.first
 
 
-legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablegestapel )
+legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablagestapel )
+legeKarteAb (VierKarten handVorher) gespielteKarte ablagestapel =
+    let
+        neuerAblagestapel =
+            gespielteKarte :: ablagestapel
+
+        neueHand =
+            List.filter (\k -> k.nummer /= gespielteKarte.nummer) handVorher
+    in
+        ( DreiKarten neueHand, neuerAblagestapel )
 
 
 zieheKarteVomZiehStapel : Ziehstapel -> ( Karte, Ziehstapel )
@@ -113,6 +121,12 @@ zieheKarteVomZiehStapel ziehstapel =
                     Debug.crash ("impossible state in zieheKarteVomZiehStapel")
     in
         ( gezogeneKarte, neuerZiehstapel )
+
+
+macheComputerZug : Spiel -> Spiel
+macheComputerZug spiel =
+    -- TODO
+    spiel
 
 
 
