@@ -67,7 +67,7 @@ update msg model =
                             SpielImGange spiel ->
                                 let
                                     spielBereitFuerInput =
-                                        naechstenSpielzugVorbereiten spiel
+                                        naechstenSpielzugVorbereiten spiel (\sp -> sp.spieler1) (\sp s -> { sp | spieler1 = s })
                                 in
                                     { model | status = SpielImGange spielBereitFuerInput }
 
@@ -104,6 +104,8 @@ update msg model =
                                             spieler1 =
                                                 spiel.spieler1
 
+                                            -- TODO: Das hier ist die FUnktion legeKarteAb mit ien paar cleveren
+                                            -- spieler selektoren und update funktionen - dann koennen wir die auch fuer den computer verwenden
                                             ( neueHand, neuerAblagestapel ) =
                                                 case spieler1.hand of
                                                     VierAufDerHand vierKarten ->
@@ -126,7 +128,7 @@ update msg model =
                                                 macheComputerZug updatedSpiel
 
                                             spielerHatNeueKarteGezogen =
-                                                naechstenSpielzugVorbereiten computerZuegeGespielt
+                                                naechstenSpielzugVorbereiten computerZuegeGespielt (\sp -> sp.spieler1) (\sp s -> { sp | spieler1 = s })
                                         in
                                             { model | status = SpielImGange spielerHatNeueKarteGezogen, cursor = Leer }
                 in

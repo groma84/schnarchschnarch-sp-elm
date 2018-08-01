@@ -41,19 +41,22 @@ spielStarten spielername karten mixNumbers =
         }
 
 
-naechstenSpielzugVorbereiten : Spiel -> Spiel
-naechstenSpielzugVorbereiten spiel =
+naechstenSpielzugVorbereiten : Spiel -> (Spiel -> Spieler) -> (Spiel -> Spieler -> Spiel) -> Spiel
+naechstenSpielzugVorbereiten spiel spielerSelektor spielUpdater =
     let
         ( spielbareHand, neuerZiehstapel ) =
             zieheKarte spiel.ziehstapel spiel.spieler1.hand
 
-        alterSpieler1 =
-            spiel.spieler1
+        alterSpieler =
+            spielerSelektor spiel
 
-        neuerSpieler1 =
-            { alterSpieler1 | hand = spielbareHand }
+        neuerSpieler =
+            { alterSpieler | hand = spielbareHand }
+
+        geaendertesSpielMitGeandertemSpieler =
+            spielUpdater spiel neuerSpieler
     in
-        { spiel | spieler1 = neuerSpieler1, ziehstapel = neuerZiehstapel }
+        { geaendertesSpielMitGeandertemSpieler | ziehstapel = neuerZiehstapel }
 
 
 zieheKarte : Ziehstapel -> Hand -> ( Hand, Ziehstapel )
@@ -126,7 +129,14 @@ zieheKarteVomZiehStapel ziehstapel =
 macheComputerZug : Spiel -> Spiel
 macheComputerZug spiel =
     -- TODO
-    spiel
+    let
+        vorSpieler2Zug =
+            naechstenSpielzugVorbereiten spiel (\sp -> sp.spieler2) (\sp s -> { sp | spieler2 = s })
+        
+        
+    in
+        -- TODO
+        spiel
 
 
 
