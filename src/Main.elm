@@ -4,6 +4,7 @@ import Html exposing (Html, div, text, h1, h2, h3, button, section, p)
 import Html.Events exposing (onClick)
 import Msgs exposing (..)
 import Types exposing (..)
+import SelektorenUndUpdater exposing (..)
 import Funktionen exposing (..)
 import AlleKarten exposing (alleKarten)
 import Render exposing (spielbrett)
@@ -67,7 +68,7 @@ update msg model =
                             SpielImGange spiel ->
                                 let
                                     spielBereitFuerInput =
-                                        naechstenSpielzugVorbereiten spiel (\sp -> sp.spieler1) (\sp s -> { sp | spieler1 = s })
+                                        naechstenSpielzugVorbereiten spiel selectSpieler1 updateSpieler1
                                 in
                                     { model | status = SpielImGange spielBereitFuerInput }
 
@@ -101,28 +102,8 @@ update msg model =
 
                                     SpielImGange spiel ->
                                         let
-                                            spieler1 =
-                                                spiel.spieler1
-
-                                            -- TODO: Das hier ist die FUnktion legeKarteAb mit ien paar cleveren
-                                            -- spieler selektoren und update funktionen - dann koennen wir die auch fuer den computer verwenden
-                                            ( neueHand, neuerAblagestapel ) =
-                                                case spieler1.hand of
-                                                    VierAufDerHand vierKarten ->
-                                                        let
-                                                            ( dreiKarten, ablagestapel ) =
-                                                                Funktionen.legeKarteAb vierKarten karte spiel.ablagestapel
-                                                        in
-                                                            ( DreiAufDerHand dreiKarten, ablagestapel )
-
-                                                    DreiAufDerHand _ ->
-                                                        ( spieler1.hand, spiel.ablagestapel )
-
-                                            updatedSpieler1 =
-                                                { spieler1 | hand = neueHand }
-
                                             updatedSpiel =
-                                                { spiel | ablagestapel = neuerAblagestapel, spieler1 = updatedSpieler1 }
+                                                Funktionen.legeKarteAb selectSpieler1 updateSpieler1 spiel karte
 
                                             computerZuegeGespielt =
                                                 macheComputerZug updatedSpiel

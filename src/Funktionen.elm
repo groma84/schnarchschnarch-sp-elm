@@ -41,7 +41,7 @@ spielStarten spielername karten mixNumbers =
         }
 
 
-naechstenSpielzugVorbereiten : Spiel -> (Spiel -> Spieler) -> (Spiel -> Spieler -> Spiel) -> Spiel
+naechstenSpielzugVorbereiten : Spiel -> SpielerSelektor -> SpielerInSpielUpdater -> Spiel
 naechstenSpielzugVorbereiten spiel spielerSelektor spielUpdater =
     let
         ( spielbareHand, neuerZiehstapel ) =
@@ -94,8 +94,38 @@ mischeStapel stapel mixNumbers =
         |> List.map Tuple.first
 
 
-legeKarteAb : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablagestapel )
-legeKarteAb (VierKarten handVorher) gespielteKarte ablagestapel =
+legeKarteAb : SpielerSelektor -> SpielerInSpielUpdater -> Spiel -> Karte -> Spiel
+legeKarteAb spielerSelektor spielerUpdater spiel karte =
+    let
+        spieler =
+            spielerSelektor spiel
+
+        ( neueHand, neuerAblagestapel ) =
+            case spieler.hand of
+                VierAufDerHand vierKarten ->
+                    let
+                        ( dreiKarten, ablagestapel ) =
+                            legeKarteAb_ vierKarten karte spiel.ablagestapel
+                    in
+                        ( DreiAufDerHand dreiKarten, ablagestapel )
+
+                DreiAufDerHand _ ->
+                    ( spieler.hand, spiel.ablagestapel )
+
+        updatedSpieler =
+            { spieler | hand = neueHand }
+
+        updatedSpielMitGeaendertemSpieler =
+            spielerUpdater spiel updatedSpieler
+
+        updatedSpiel =
+            { updatedSpielMitGeaendertemSpieler | ablagestapel = neuerAblagestapel }
+    in
+        updatedSpiel
+
+
+legeKarteAb_ : VierKarten -> Karte -> Ablagestapel -> ( DreiKarten, Ablagestapel )
+legeKarteAb_ (VierKarten handVorher) gespielteKarte ablagestapel =
     let
         neuerAblagestapel =
             gespielteKarte :: ablagestapel
@@ -132,8 +162,6 @@ macheComputerZug spiel =
     let
         vorSpieler2Zug =
             naechstenSpielzugVorbereiten spiel (\sp -> sp.spieler2) (\sp s -> { sp | spieler2 = s })
-        
-        
     in
         -- TODO
         spiel

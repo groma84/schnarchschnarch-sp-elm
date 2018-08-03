@@ -129,3 +129,11 @@ type KartenInteraktion
 type Cursor
     = Leer
     | KarteAktiv Karte
+
+
+type alias SpielerSelektor =
+    Spiel -> Spieler
+
+
+type alias SpielerInSpielUpdater =
+    Spiel -> Spieler -> Spiel
