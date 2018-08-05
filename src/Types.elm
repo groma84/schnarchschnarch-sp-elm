@@ -137,3 +137,7 @@ type alias SpielerSelektor =
 
 type alias SpielerInSpielUpdater =
     Spiel -> Spieler -> Spiel
+
+
+type ComputerAktion
+    = KarteAblegen

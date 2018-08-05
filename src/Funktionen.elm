@@ -3,6 +3,7 @@ module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugV
 import Random
 import Types exposing (..)
 import Msgs exposing (..)
+import SelektorenUndUpdater exposing (selectSpieler2, updateSpieler2)
 
 
 spielStarten : Spielername -> List Karte -> List Int -> Spiel
@@ -161,10 +162,36 @@ macheComputerZug spiel =
     -- TODO
     let
         vorSpieler2Zug =
-            naechstenSpielzugVorbereiten spiel (\sp -> sp.spieler2) (\sp s -> { sp | spieler2 = s })
+            naechstenSpielzugVorbereiten spiel selectSpieler2 updateSpieler2
+
+        naechsterZug =
+            entscheideNaechstenZug selectSpieler2 vorSpieler2Zug
+
+        spielNachSpieler2Zug =
+            case naechsterZug of
+                KarteAblegen ->
+                    let
+                        karte =
+                            sucheAbzulegendeKarte selectSpieler2
+                    in
+                        legeKarteAb selectSpieler2 updateSpieler2 vorSpieler2Zug karte
     in
         -- TODO
         spiel
+
+
+entscheideNaechstenZug : SpielerSelektor -> Spiel -> ComputerAktion
+entscheideNaechstenZug spielerSelektor spiel =
+    let
+        spieler =
+            spielerSelektor spiel
+    in
+        KarteAblegen
+
+
+sucheAbzulegendeKarte : VierAufDerHand -> Karte
+sucheAbzulegendeKarte (VierAufDerHand vierKarten) =
+    vierKarten
 
 
 
