@@ -3,7 +3,7 @@ module Funktionen exposing (spielStarten, createRandomValues, naechstenSpielzugV
 import Random
 import Types exposing (..)
 import Msgs exposing (..)
-import SelektorenUndUpdater exposing (selectSpieler2, updateSpieler2)
+import SelektorenUndUpdater exposing (selectSpieler2, updateSpieler2, selectSpieler3, updateSpieler3, selectSpieler4, updateSpieler4)
 
 
 spielStarten : Spielername -> List Karte -> List Int -> Spiel
@@ -45,11 +45,11 @@ spielStarten spielername karten mixNumbers =
 naechstenSpielzugVorbereiten : Spiel -> SpielerSelektor -> SpielerInSpielUpdater -> Spiel
 naechstenSpielzugVorbereiten spiel spielerSelektor spielUpdater =
     let
-        ( spielbareHand, neuerZiehstapel ) =
-            zieheKarte spiel.ziehstapel spiel.spieler1.hand
-
         alterSpieler =
             spielerSelektor spiel
+
+        ( spielbareHand, neuerZiehstapel ) =
+            zieheKarte spiel.ziehstapel alterSpieler.hand
 
         neuerSpieler =
             { alterSpieler | hand = spielbareHand }
@@ -157,27 +157,41 @@ zieheKarteVomZiehStapel ziehstapel =
         ( gezogeneKarte, neuerZiehstapel )
 
 
-macheComputerZug : Spiel -> Spiel
-macheComputerZug spiel =
-    -- TODO
+macheEinenComputerZug : SpielerSelektor -> SpielerInSpielUpdater -> Spiel -> Spiel
+macheEinenComputerZug spielerSelektor spielerInSpielUpdater spiel =
     let
-        vorSpieler2Zug =
-            naechstenSpielzugVorbereiten spiel selectSpieler2 updateSpieler2
+        vorZug =
+            naechstenSpielzugVorbereiten spiel spielerSelektor spielerInSpielUpdater
 
         naechsterZug =
-            entscheideNaechstenZug selectSpieler2 vorSpieler2Zug
+            entscheideNaechstenZug spielerSelektor vorZug
 
-        spielNachSpieler2Zug =
+        spielNachZug =
             case naechsterZug of
                 KarteAblegen ->
                     let
+                        spieler =
+                            spielerSelektor vorZug
+
                         karte =
-                            sucheAbzulegendeKarte selectSpieler2
+                            case spieler.hand of
+                                VierAufDerHand vierKarten ->
+                                    sucheAbzulegendeKarte vierKarten
+
+                                DreiAufDerHand dreiKarten ->
+                                    Debug.crash "bei drei Karten kann niemals eine abgelegt werden -- kommt nie vor"
                     in
-                        legeKarteAb selectSpieler2 updateSpieler2 vorSpieler2Zug karte
+                        legeKarteAb spielerSelektor spielerInSpielUpdater vorZug karte
     in
-        -- TODO
-        spiel
+        spielNachZug
+
+
+macheComputerZug : Spiel -> Spiel
+macheComputerZug spiel =
+    spiel
+        |> macheEinenComputerZug selectSpieler2 updateSpieler2
+        |> macheEinenComputerZug selectSpieler3 updateSpieler3
+        |> macheEinenComputerZug selectSpieler4 updateSpieler4
 
 
 entscheideNaechstenZug : SpielerSelektor -> Spiel -> ComputerAktion
@@ -189,9 +203,48 @@ entscheideNaechstenZug spielerSelektor spiel =
         KarteAblegen
 
 
-sucheAbzulegendeKarte : VierAufDerHand -> Karte
-sucheAbzulegendeKarte (VierAufDerHand vierKarten) =
-    vierKarten
+sucheAbzulegendeKarte : VierKarten -> Karte
+sucheAbzulegendeKarte (VierKarten vierKarten) =
+    let
+        pruefeKartenTyp gesuchterTyp karte =
+            case karte.typ == gesuchterTyp of
+                True ->
+                    Just karte
+
+                False ->
+                    Nothing
+
+        pruefeKarten karte schonGefunden =
+            case schonGefunden of
+                Just k ->
+                    schonGefunden
+
+                Nothing ->
+                    let
+                        nurWennNochNichtGefunden fn gefunden =
+                            case gefunden of
+                                Just x ->
+                                    gefunden
+
+                                Nothing ->
+                                    fn karte
+                    in
+                        List.foldl nurWennNochNichtGefunden
+                            schonGefunden
+                            [ pruefeKartenTyp <| Stoerkarte
+                            , pruefeKartenTyp <| Ruhekissenkarte EinKissen
+                            , pruefeKartenTyp <| Ruhekissenkarte ZweiKissen
+                            , pruefeKartenTyp <| Schnarchkarte
+                            , pruefeKartenTyp <| Ruhekissenkarte DreiKissen
+                            , pruefeKartenTyp <| Gewitterkarte
+                            ]
+    in
+        case List.foldl pruefeKarten Nothing vierKarten of
+            Just k ->
+                k
+
+            Nothing ->
+                Debug.crash "keine ablegbare Karte auf der Hand -- kommt nie vor"
 
 
 
